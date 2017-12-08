@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Scala &lt;3 Math</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.2/css/font-awesome.min.css" />
+  <link href="https://fonts.googleapis.com/css?family=Satisfy" rel="stylesheet">
+  <link rel="stylesheet/less" type="text/css" href="style.less" />
+</head>
+<body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/less.js/2.7.2/less.min.js"></script>
+  <script src="remark.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML&delayStartupUntil=configured" type="text/javascript"></script>
+  <script src="./mermaid.min.js"></script>
+  <link rel="stylesheet" href="./mermaid.dark.css">
+  <script>
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'slides.md', true);
+    xhr.onload = function (e) {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+          createSlideshow(xhr.responseText.replace(/\r\n/g, '\n'));
+        } else {
+          throw Error(xhr.statusText);
+        }
+      }
+    };
+    xhr.send(null);
+
+    function createSlideshow(text) {
+      console.log(text);
+      var slideshow = remark.create({source: text, ratio: '16:9', highlightStyle: 'solarized-dark', highlightLanguage: 'scala'});
+
+      mermaid.init(".remark-visible .mermaid");
+
+
+      document.getElementsByClassName('remark-code').filter( (el) => el.classList.contains('scala') )
+        .map( (block) => {
+          block.getElementsByClassName('remark-code-line').map(function(line) {
+            line.childNodes.map(function(node) {
+              if(node.nodeType == 3) {
+                var newEl = document.createElement("span");
+                node.parentNode.replaceChild(newEl, node);
+                var pieces = node.textContent.split(/([\.,\(\)\{\}]|=>)/);
+                pieces.map(function(piece) {
+                  switch(piece) {
+                    case ".":
+                    case "(":
+                    case ")":
+                    case "{":
+                    case "}":
+                      var p = document.createElement("span");
+                      p.className = "hljs-punctuation char-" + escape(piece).replace("%", "").replace(".", "dot");
+                      p.appendChild(document.createTextNode(piece));
+                      newEl.appendChild(p);
+                      break;
+                    case "=>":
+                      var p = document.createElement("span");
+                      p.className = "hljs-fn-arrow";
+                      p.appendChild(document.createTextNode(piece));
+                      newEl.appendChild(p);
+                      break;
+                    default:
+                      var p = document.createTextNode(piece);
+                      newEl.appendChild(p);
+                  }
+                });
+              }
+            });
+          });
+        });
+
+       MathJax.Hub.Config({
+            tex2jax: {
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
+        });
+
+        MathJax.Hub.Configured();
+      }
+  </script>
+
+  </body>
+</html>
